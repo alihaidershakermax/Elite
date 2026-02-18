@@ -2,8 +2,7 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 
 // Use your local machine IP so physical devices and emulators can connect
-// ⚠️ MASKED FOR SECURITY - Replace with your live Vercel API URL
-const BASE_URL = 'https://your-elite-api.vercel.app/api';
+const BASE_URL = 'https://eliteapi.vercel.app/api';
 
 
 

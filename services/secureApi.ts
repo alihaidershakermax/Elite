@@ -6,11 +6,11 @@ import * as Device from 'expo-device';
 // ⚠️ هذا المفتاح يجب أن يكون مطابقاً للـ Backend
 // في الإنتاج، استخدم Obfuscation لإخفائه
 // ⚠️ MASKED FOR SECURITY - Choose a strong secret key for your production environment
-const APP_SECRET = 'your-secure-app-secret-key-placeholder';
+const APP_SECRET = 'elite-app-secret-key-2026';
 
 // API Configuration
 // ⚠️ MASKED FOR SECURITY - Replace with your live Vercel base URL
-const API_BASE = 'https://your-elite-api.vercel.app';
+const API_BASE = 'https://eliteapi.vercel.app';
 
 const API_VERSION = 'api';
 const API_URL = `${API_BASE}/${API_VERSION}`;

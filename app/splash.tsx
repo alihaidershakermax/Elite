@@ -116,7 +116,7 @@ const CustomSplashScreen = () => {
                     <Text style={[styles.title, { color: '#fff', fontFamily: Typography.bold }]}>ELITE</Text>
                     <View style={[styles.divider, { backgroundColor: theme.primary }]} />
                     <Text style={[styles.subtitle, { color: 'rgba(255,255,255,0.5)', fontFamily: Typography.regular }]}>
-                        MANAGEMENT SYSTEM
+                        DIGITAL PUBLISHING
                     </Text>
                 </Animated.View>
             </View>
@@ -125,7 +125,7 @@ const CustomSplashScreen = () => {
             <Animated.View style={[styles.bottomContainer, textStyle]}>
                 <View style={[styles.iosBadge, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
                     <Text style={[styles.credits, { color: 'rgba(255,255,255,0.3)', fontFamily: Typography.regular }]}>
-                        AL-AYEN IRAQI UNIVERSITY • COLLEGE OF ENGINEERING
+                        PREMIUM EDITION • 2026
                     </Text>
                 </View>
             </Animated.View>

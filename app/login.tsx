@@ -81,7 +81,7 @@ const LoginScreen = () => {
                                 </View>
                             </View>
                             <Text style={[styles.welcomeText, { fontFamily: Typography.bold }]}>ELITE</Text>
-                            <Text style={[styles.subtitle, { fontFamily: Typography.regular }]}>نظام إدارة المهندسين الذكي</Text>
+                            <Text style={[styles.subtitle, { fontFamily: Typography.regular }]}>منصة النشر الرقمي المتكاملة</Text>
                         </Animated.View>
 
                         <Animated.View entering={FadeInUp.delay(300).duration(1000)} style={styles.glassCard}>
@@ -121,7 +121,7 @@ const LoginScreen = () => {
                                     </View>
 
                                     <TouchableOpacity style={styles.forgotBtn}>
-                                        <Text style={[styles.forgotText, { color: theme.primary, fontFamily: Typography.regular }]}>امتلاك حساب؟ اتصل بالإدارة</Text>
+                                        <Text style={[styles.forgotText, { color: theme.primary, fontFamily: Typography.regular }]}>تواصل معنا للانضمام للمنصة</Text>
                                     </TouchableOpacity>
 
                                     <TouchableOpacity

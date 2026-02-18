@@ -63,6 +63,7 @@ export default function RootLayout() {
           <Stack.Screen name="archive" />
           <Stack.Screen name="about" />
           <Stack.Screen name="chat" options={{ presentation: 'card' }} />
+          <Stack.Screen name="chat-room" options={{ presentation: 'card' }} />
           <Stack.Screen name="notifications" options={{ presentation: 'card' }} />
           <Stack.Screen name="admin" />
           <Stack.Screen name="activity-detail" />

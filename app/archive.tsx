@@ -1,80 +1,66 @@
-import { Colors } from '@/constants/theme';
+import { Colors, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Image, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
-const COLUMN_WIDTH = (width - 64) / 2;
-
-const ARCHIVE_DATA = [
-    { id: '1', title: 'فعالية الابتكار 2023', type: 'صور', count: 45, image: 'https://picsum.photos/seed/arc1/400/400' },
-    { id: '2', title: 'تقرير النصف سنوي', type: 'تقارير', count: 12, image: 'https://picsum.photos/seed/arc2/400/400' },
-    { id: '3', title: 'ورشة الذكاء الاصطناعي', type: 'صور', count: 28, image: 'https://picsum.photos/seed/arc3/400/400' },
-    { id: '4', title: 'حملة التشجير 2024', type: 'صور', count: 15, image: 'https://picsum.photos/seed/arc4/400/400' },
-    { id: '5', title: 'دليل ميثاق اللجنة', type: 'تقارير', count: 1, image: 'https://picsum.photos/seed/arc5/400/400' },
-    { id: '6', title: 'المسابقة البرمجية', type: 'صور', count: 62, image: 'https://picsum.photos/seed/arc6/400/400' },
-];
 
 export default function ArchiveScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
-    const [activeTab, setActiveTab] = useState('الكل');
+    const [refreshing, setRefreshing] = useState(false);
 
-    const renderItem = ({ item }: { item: typeof ARCHIVE_DATA[0] }) => (
-        <TouchableOpacity style={[styles.gridItem, { backgroundColor: theme.surfaceVariant }]}>
-            <Image source={{ uri: item.image }} style={styles.gridImage} />
-            <View style={styles.itemOverlay}>
-                <View style={[styles.countBadge, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
-                    <Text style={styles.countText}>{item.count}</Text>
-                    <Ionicons name={item.type === 'صور' ? 'image' : 'document-text'} size={12} color="#FFF" />
+    // Mock archived items
+    const archiveItems = [
+        { id: '1', title: 'فعالية التخرج 2023', date: 'يونيو 2023', type: 'فعالية', image: 'https://picsum.photos/seed/arch1/400/200' },
+        { id: '2', title: 'دورة هندسة الذكاء الاصطناعي', date: 'ديسمبر 2022', type: 'دورة', image: 'https://picsum.photos/seed/arch2/400/200' },
+        { id: '3', title: 'تكريم المبدعين السنوي', date: 'مارس 2023', type: 'تكريم', image: 'https://picsum.photos/seed/arch3/400/200' },
+        { id: '4', title: 'مسابقة الابتكار الهندسي', date: 'نوفمبر 2022', type: 'مسابقة', image: 'https://picsum.photos/seed/arch4/400/200' },
+    ];
+
+    const onRefresh = () => {
+        setRefreshing(true);
+        setTimeout(() => setRefreshing(false), 1500);
+    };
+
+    const renderItem = ({ item, index }: { item: any, index: number }) => (
+        <Animated.View entering={FadeInUp.delay(index * 100)} style={[styles.card, { backgroundColor: theme.surfaceVariant }]}>
+            <Image source={{ uri: item.image }} style={styles.image} />
+            <View style={styles.cardOverlay}>
+                <View style={[styles.typeBadge, { backgroundColor: theme.primaryContainer }]}>
+                    <Text style={[styles.typeText, { color: theme.onPrimaryContainer, fontFamily: Typography.bold }]}>{item.type}</Text>
+                </View>
+                <Text style={[styles.title, { fontFamily: Typography.bold }]}>{item.title}</Text>
+                <View style={styles.dateRow}>
+                    <Ionicons name="calendar-outline" size={14} color="#EEE" />
+                    <Text style={[styles.dateText, { fontFamily: Typography.regular }]}>{item.date}</Text>
                 </View>
             </View>
-            <View style={styles.itemInfo}>
-                <Text style={[styles.itemTitle, { color: theme.onSurface }]} numberOfLines={1}>{item.title}</Text>
-                <Text style={[styles.itemType, { color: theme.onSurfaceVariant }]}>{item.type}</Text>
-            </View>
-        </TouchableOpacity>
+        </Animated.View>
     );
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: theme.surfaceVariant }]}>
-                    <Ionicons name="chevron-forward" size={24} color={theme.onSurfaceVariant} />
+                <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: theme.elevation.level2 }]}>
+                    <Ionicons name="chevron-forward" size={24} color={theme.onSurface} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: theme.onSurface }]}>الأرشيف والوسائط</Text>
-                <View style={{ width: 48 }} />
-            </View>
-
-            <View style={styles.tabsContainer}>
-                {['الكل', 'صور', 'تقارير'].map((tab) => (
-                    <TouchableOpacity
-                        key={tab}
-                        onPress={() => setActiveTab(tab)}
-                        style={[
-                            styles.tab,
-                            {
-                                backgroundColor: activeTab === tab ? theme.primaryContainer : 'transparent',
-                                borderColor: theme.outline
-                            }
-                        ]}
-                    >
-                        <Text style={[styles.tabText, { color: activeTab === tab ? theme.onPrimaryContainer : theme.onSurfaceVariant }]}>{tab}</Text>
-                    </TouchableOpacity>
-                ))}
+                <Text style={[styles.headerTitle, { color: theme.onSurface, fontFamily: Typography.bold }]}>الأرشيف الهندسي</Text>
             </View>
 
             <FlatList
-                data={activeTab === 'الكل' ? ARCHIVE_DATA : ARCHIVE_DATA.filter(i => i.type === activeTab)}
+                data={archiveItems}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
-                numColumns={2}
-                contentContainerStyle={styles.gridContent}
-                columnWrapperStyle={styles.gridRow}
+                contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />}
+                numColumns={2}
+                columnWrapperStyle={styles.columnWrapper}
             />
         </SafeAreaView>
     );
@@ -89,85 +75,70 @@ const styles = StyleSheet.create({
         flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         alignItems: 'center',
+        paddingBottom: 16,
     },
     headerTitle: {
-        fontSize: 22,
-        fontWeight: '700',
+        fontSize: 20,
     },
     backBtn: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 44,
+        height: 44,
+        borderRadius: 14,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    tabsContainer: {
-        flexDirection: 'row-reverse',
-        paddingHorizontal: 24,
-        marginBottom: 20,
-        gap: 12,
-    },
-    tab: {
-        paddingHorizontal: 20,
-        paddingVertical: 8,
-        borderRadius: 28,
-        borderWidth: 1,
-    },
-    tabText: {
-        fontWeight: '600',
-        fontSize: 14,
-    },
-    gridContent: {
+    listContent: {
         padding: 24,
         paddingTop: 0,
-        paddingBottom: 40,
+        paddingBottom: 100,
     },
-    gridRow: {
+    columnWrapper: {
         justifyContent: 'space-between',
-        marginBottom: 20,
-        flexDirection: 'row-reverse',
+        gap: 12,
+        marginBottom: 12,
     },
-    gridItem: {
-        width: COLUMN_WIDTH,
-        borderRadius: 24, // M3 Medium radius
+    card: {
+        width: (width - 60) / 2,
+        height: 180,
+        borderRadius: 24,
         overflow: 'hidden',
+        backgroundColor: '#000',
     },
-    gridImage: {
+    image: {
         width: '100%',
-        height: 150,
+        height: '100%',
+        opacity: 0.6,
     },
-    itemOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        height: 150,
-        backgroundColor: 'rgba(0,0,0,0.05)',
-    },
-    countBadge: {
+    cardOverlay: {
         position: 'absolute',
-        top: 10,
-        right: 10,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: 12,
+    },
+    typeBadge: {
+        alignSelf: 'flex-start',
         paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingVertical: 3,
         borderRadius: 8,
-        flexDirection: 'row',
+        marginBottom: 6,
+    },
+    typeText: {
+        fontSize: 9,
+    },
+    title: {
+        color: '#FFF',
+        fontSize: 14,
+        textAlign: 'right',
+    },
+    dateRow: {
+        flexDirection: 'row-reverse',
         alignItems: 'center',
         gap: 4,
+        marginTop: 4,
     },
-    countText: {
-        color: '#FFF',
+    dateText: {
+        color: '#EEE',
         fontSize: 10,
-        fontWeight: '700',
-    },
-    itemInfo: {
-        padding: 16,
-    },
-    itemTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-        textAlign: 'right',
-        marginBottom: 4,
-    },
-    itemType: {
-        fontSize: 12,
-        textAlign: 'right',
     },
 });

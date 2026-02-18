@@ -1,174 +1,293 @@
-import { Colors } from '@/constants/theme';
+import { Colors, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { activityService } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { Dimensions, FlatList, Image, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const ACTIVITIES_DATA = [
-    {
-        id: '1',
-        title: 'ملتقى التوظيف الهندسي',
-        description: 'يوم مفتوح للتواصل مع كبرى الشركات الهندسية وتوفير فرص عمل وتدريب للطلاب والخريجين.',
-        date: '25 مايو 2024',
-        committee: 'لجنة العلاقات العامة',
-        image: 'https://picsum.photos/seed/act1/400/200',
-    },
-    {
-        id: '2',
-        title: 'ورشة عمل الروبوتات',
-        description: 'تعلم أساسيات بناء وبرمجة الروبوتات باستخدام Arduino و Raspberry Pi.',
-        date: '10 يونيو 2024',
-        committee: 'اللجنة العلمية',
-        image: 'https://picsum.photos/seed/act2/400/200',
-    },
-    {
-        id: '3',
-        title: 'دوري كرة القدم للهندسة',
-        description: 'البطولة السنوية لكرة القدم بين الأقسام الأكاديمية المختلفة في الكلية.',
-        date: '15 يونيو 2024',
-        committee: 'اللجنة الرياضية',
-        image: 'https://picsum.photos/seed/act3/400/200',
-    },
-];
+const { width } = Dimensions.get('window');
 
 export default function ActivitiesScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
-    const [searchQuery, setSearchQuery] = useState('');
+    const [activities, setActivities] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
-    const renderActivity = ({ item }: { item: typeof ACTIVITIES_DATA[0] }) => (
-        <View style={[styles.card, { backgroundColor: theme.surfaceVariant }]}>
-            <Image source={{ uri: item.image }} style={styles.image} />
-            <View style={styles.content}>
-                <View style={styles.row}>
-                    <View style={[styles.tag, { backgroundColor: theme.primaryContainer }]}>
-                        <Text style={[styles.tagText, { color: theme.onPrimaryContainer }]}>{item.committee}</Text>
-                    </View>
-                    <Text style={[styles.dateText, { color: theme.onSurfaceVariant }]}>{item.date}</Text>
+    useFocusEffect(
+        useCallback(() => {
+            fetchActivities();
+        }, [])
+    );
+
+    const fetchActivities = async () => {
+        try {
+            setLoading(true);
+            const response = await activityService.getAll();
+            setActivities(response.data || []);
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
+    const onRefresh = () => {
+        setRefreshing(true);
+        fetchActivities();
+    };
+
+    const renderActivity = ({ item }: { item: any }) => (
+        <TouchableOpacity
+            style={[styles.activityCard, { backgroundColor: theme.surface }]}
+            activeOpacity={0.8}
+            onPress={() => router.push({ pathname: '/activity-detail', params: { id: item._id || item.id } } as any)}
+        >
+            <View style={styles.cardHeader}>
+                <View style={[styles.typeBadge, { backgroundColor: theme.primary + '15' }]}>
+                    <Text style={[styles.typeText, { color: theme.primary, fontFamily: Typography.bold }]}>نشاط جامعي</Text>
                 </View>
-                <Text style={[styles.title, { color: theme.onSurface }]}>{item.title}</Text>
-                <Text style={[styles.description, { color: theme.onSurfaceVariant }]} numberOfLines={2}>
-                    {item.description}
-                </Text>
-                <TouchableOpacity style={[styles.registerButton, { backgroundColor: theme.primary }]}>
-                    <Text style={[styles.buttonText, { color: theme.onPrimary }]}>سجل الآن</Text>
-                    <Ionicons name="chevron-back" size={18} color={theme.onPrimary} />
-                </TouchableOpacity>
+                <Ionicons name="ellipsis-horizontal" size={20} color={theme.onSurfaceVariant} />
             </View>
+
+            {item.image && (
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: item.image }}
+                        style={styles.activityImage}
+                        resizeMode="cover"
+                    />
+                    <BlurView intensity={20} tint="dark" style={styles.imageBlur}>
+                        <View style={styles.timeBadge}>
+                            <Ionicons name="time-outline" size={12} color="#fff" />
+                            <Text style={styles.timeText}>{item.date || 'قريباً'}</Text>
+                        </View>
+                    </BlurView>
+                </View>
+            )}
+
+            <View style={styles.activityContent}>
+                <Text style={[styles.activityTitle, { color: theme.onSurface, fontFamily: Typography.bold }]}>
+                    {item.title}
+                </Text>
+
+                {item.description && (
+                    <Text style={[styles.activityDescription, { color: theme.onSurfaceVariant, fontFamily: Typography.regular }]} numberOfLines={3}>
+                        {item.description}
+                    </Text>
+                )}
+
+                <View style={[styles.divider, { backgroundColor: theme.outline + '20' }]} />
+
+                <View style={styles.activityMeta}>
+                    <View style={styles.metaItem}>
+                        <View style={[styles.metaIcon, { backgroundColor: '#FF950015' }]}>
+                            <Ionicons name="location" size={14} color="#FF9500" />
+                        </View>
+                        <Text style={[styles.metaText, { color: theme.onSurfaceVariant, fontFamily: Typography.regular }]} numberOfLines={1}>
+                            {item.location || 'غير محدد'}
+                        </Text>
+                    </View>
+
+                    <View style={styles.metaItem}>
+                        <View style={[styles.metaIcon, { backgroundColor: '#007AFF15' }]}>
+                            <Ionicons name="people" size={14} color="#007AFF" />
+                        </View>
+                        <Text style={[styles.metaText, { color: theme.onSurfaceVariant, fontFamily: Typography.regular }]}>
+                            عام للجميع
+                        </Text>
+                    </View>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+
+    const renderEmpty = () => (
+        <View style={styles.emptyContainer}>
+            <LinearGradient
+                colors={[theme.primary + '20', 'transparent']}
+                style={styles.emptyIconCircle}
+            >
+                <Ionicons name="calendar-clear-outline" size={60} color={theme.primary} />
+            </LinearGradient>
+            <Text style={[styles.emptyText, { color: theme.onSurface, fontFamily: Typography.bold }]}>
+                هدوء تام..
+            </Text>
+            <Text style={[styles.emptySubtext, { color: theme.onSurfaceVariant, fontFamily: Typography.regular }]}>
+                لا توجد نشاطات مجدولة في الوقت الحالي، تفقدنا لاحقاً!
+            </Text>
         </View>
     );
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
             <View style={styles.header}>
-                <Text style={[styles.headerTitle, { color: theme.onSurface }]}>قائمة الأنشطة</Text>
-                <View style={[styles.searchContainer, { backgroundColor: theme.elevation.level2 }]}>
-                    <Ionicons name="search-outline" size={20} color={theme.onSurfaceVariant} />
-                    <TextInput
-                        placeholder="بحث عن نشاط..."
-                        placeholderTextColor={theme.onSurfaceVariant}
-                        style={[styles.searchInput, { color: theme.onSurface }]}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        textAlign="right"
-                    />
-                </View>
+                <Text style={[styles.headerSubtitle, { color: theme.onSurfaceVariant, fontFamily: Typography.regular }]}>اكتشف آخر الفعاليات</Text>
+                <Text style={[styles.headerTitle, { color: theme.onSurface, fontFamily: Typography.bold }]}>النشاطات</Text>
             </View>
 
             <FlatList
-                data={ACTIVITIES_DATA}
+                data={activities}
                 renderItem={renderActivity}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item, index) => item.id || index.toString()}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
+                ListEmptyComponent={renderEmpty}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={theme.primary}
+                    />
+                }
             />
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+    container: { flex: 1 },
     header: {
-        padding: 24,
+        paddingHorizontal: 20,
+        paddingTop: 10,
+        paddingBottom: 20,
+        alignItems: 'flex-end',
+    },
+    headerSubtitle: {
+        fontSize: 13,
+        opacity: 0.6,
+        marginBottom: 2,
     },
     headerTitle: {
-        fontSize: 28,
-        fontWeight: '700',
-        textAlign: 'right',
-        marginBottom: 20,
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        borderRadius: 28, // M3 Search bar radius
-        height: 56,
-    },
-    searchInput: {
-        flex: 1,
-        marginRight: 12,
-        fontSize: 16,
+        fontSize: 34,
+        letterSpacing: -0.5,
     },
     listContent: {
-        padding: 24,
-        paddingTop: 0,
-        gap: 20,
+        paddingHorizontal: 20,
         paddingBottom: 100,
+        gap: 20,
     },
-    card: {
-        borderRadius: 24, // M3 Card radius
+    activityCard: {
+        borderRadius: 24,
         overflow: 'hidden',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
     },
-    image: {
-        width: '100%',
-        height: 180,
-    },
-    content: {
-        padding: 20,
-    },
-    row: {
+    cardHeader: {
         flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        padding: 16,
     },
-    tag: {
+    typeBadge: {
         paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
+        paddingVertical: 4,
+        borderRadius: 20,
     },
-    tagText: {
+    typeText: {
+        fontSize: 10,
+    },
+    imageContainer: {
+        height: 240,
+        width: '100%',
+        position: 'relative',
+    },
+    activityImage: {
+        width: '100%',
+        height: '100%',
+    },
+    imageBlur: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        height: 50,
+        justifyContent: 'center',
+        paddingHorizontal: 16,
+    },
+    timeBadge: {
+        flexDirection: 'row-reverse',
+        alignItems: 'center',
+        gap: 6,
+    },
+    timeText: {
         fontSize: 12,
-        fontWeight: 'bold',
+        color: '#fff',
+        fontFamily: 'CairoBold',
     },
-    dateText: {
-        fontSize: 12,
+    activityContent: {
+        padding: 16,
+        alignItems: 'flex-end',
     },
-    title: {
+    activityTitle: {
         fontSize: 20,
-        fontWeight: 'bold',
+        marginBottom: 8,
+        lineHeight: 28,
         textAlign: 'right',
-        marginBottom: 10,
     },
-    description: {
+    activityDescription: {
         fontSize: 14,
+        lineHeight: 22,
+        marginBottom: 16,
         textAlign: 'right',
-        lineHeight: 20,
-        marginBottom: 20,
+        opacity: 0.8,
     },
-    registerButton: {
-        flexDirection: 'row',
+    divider: {
+        width: '100%',
+        height: 1,
+        marginBottom: 16,
+    },
+    activityMeta: {
+        flexDirection: 'row-reverse',
+        gap: 20,
+        width: '100%',
+    },
+    metaItem: {
+        flexDirection: 'row-reverse',
+        alignItems: 'center',
+        gap: 8,
+        flex: 1,
+    },
+    metaIcon: {
+        width: 32,
+        height: 32,
+        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 12,
-        borderRadius: 16,
-        gap: 8,
     },
-    buttonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
+    metaText: {
+        fontSize: 13,
+        flex: 1,
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 100,
+        paddingHorizontal: 40,
+    },
+    emptyIconCircle: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    emptyText: {
+        fontSize: 22,
+        marginBottom: 10,
+    },
+    emptySubtext: {
+        fontSize: 15,
+        opacity: 0.6,
+        textAlign: 'center',
+        lineHeight: 22,
     },
 });

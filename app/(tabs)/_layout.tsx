@@ -1,66 +1,80 @@
+import { Colors, Typography } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primary,
-        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].onSurfaceVariant,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.onSurfaceVariant,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors[colorScheme ?? 'light'].elevation.level2,
+          backgroundColor: theme.elevation.level2,
           borderTopWidth: 0,
           height: 80,
-          paddingBottom: 12,
+          paddingBottom: 14,
           paddingTop: 8,
+          elevation: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.06,
+          shadowRadius: 12,
         },
         tabBarLabelStyle: {
-          fontFamily: 'System',
-          fontWeight: '600',
-          fontSize: 12,
-          marginTop: 4,
-        }
+          fontFamily: Typography.bold,
+          fontSize: 11,
+          marginTop: 2,
+        },
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'الرئيسية',
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="home" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={focused ? 26 : 24} name={focused ? 'home' : 'home-outline'} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="activities"
         options={{
           title: 'الأنشطة',
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="calendar" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={focused ? 26 : 24} name={focused ? 'calendar' : 'calendar-outline'} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="tasks"
         options={{
           title: 'المهام',
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="list" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={focused ? 26 : 24} name={focused ? 'list-circle' : 'list-circle-outline'} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="members"
+        name="committees"
         options={{
-          title: 'الأعضاء',
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="people" color={color} />,
+          title: 'اللجان',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={focused ? 26 : 24} name={focused ? 'briefcase' : 'briefcase-outline'} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'الحساب',
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="person" color={color} />,
+          title: 'حسابي',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={focused ? 26 : 24} name={focused ? 'person-circle' : 'person-circle-outline'} color={color} />
+          ),
         }}
       />
     </Tabs>

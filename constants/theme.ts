@@ -10,10 +10,10 @@ const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    primary: '#4F6630',
+    primary: '#728156',
     onPrimary: '#FFFFFF',
-    primaryContainer: '#D0EDB5',
-    onPrimaryContainer: '#111F00',
+    primaryContainer: '#E7F5DC',
+    onPrimaryContainer: '#223605',
     secondary: '#586249',
     onSecondary: '#FFFFFF',
     secondaryContainer: '#DCE7C8',
@@ -43,10 +43,10 @@ export const Colors = {
     },
   },
   dark: {
-    primary: '#B4D19B',
+    primary: '#BDD1A8', // Lighter version of #728156 for dark mode
     onPrimary: '#223605',
     primaryContainer: '#384E1A',
-    onPrimaryContainer: '#D0EDB5',
+    onPrimaryContainer: '#E7F5DC',
     secondary: '#C0CBAE',
     onSecondary: '#2A331E',
     secondaryContainer: '#404A33',
@@ -79,13 +79,9 @@ export const Colors = {
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {
@@ -94,10 +90,9 @@ export const Fonts = Platform.select({
     rounded: 'normal',
     mono: 'monospace',
   },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
 });
+
+export const Typography = {
+  regular: 'CairoRegular',
+  bold: 'CairoBold',
+};
